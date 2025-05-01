@@ -16,6 +16,11 @@ packages/
 project.lock.json
 project.fragment.lock.json
 
+# Pastas de build (obj, Debug, Release)
+**/obj/
+**/Debug/
+**/Release/
+
 # Rider
 .idea/
 *.sln.iml
