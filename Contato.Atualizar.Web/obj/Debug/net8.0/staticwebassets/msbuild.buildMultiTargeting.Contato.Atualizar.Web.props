@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Contato.Atualizar.Web.props" />
+</Project>

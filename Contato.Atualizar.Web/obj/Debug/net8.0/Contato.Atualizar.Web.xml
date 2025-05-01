@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Contato.Atualizar.Web</name>
+    </assembly>
+    <members>
+        <member name="M:Contato.Atualizar.Web.Controllers.ContatoController.AtualizarContato(Contato.Atualizar.Application.Dtos.AtualizarContatoDto)">
+            <summary>
+            Atualiza um contato e envia os dados para a fila.
+            </summary>
+            <param name="dto">Dados do contato a serem atualizados.</param>
+            <returns>Retorna o ID e a data da requisição.</returns>
+            <response code="200">Contato atualizado com sucesso</response>
+            <response code="400">Dados inválidos</response>
+        </member>
+    </members>
+</doc>
