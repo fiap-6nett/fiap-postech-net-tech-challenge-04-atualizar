@@ -38,3 +38,6 @@ O projeto foi desenvolvido como parte do **FIAP Tech Challenge**, no contexto do
 - .NET 8 SDK
 - RabbitMQ (local ou em container)
 - Docker (opcional)
+- Para acessar via docker - Executar os comandos
+  - docker build -t contato.atualizar.web .
+  - docker run -it -p 8080:8080 --rm contato.atualizar.web
