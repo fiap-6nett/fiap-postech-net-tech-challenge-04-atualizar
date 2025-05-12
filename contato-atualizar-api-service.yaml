@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: contato-atualizar-api
+spec:
+  type: LoadBalancer
+  selector:
+    app: contato-atualizar-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

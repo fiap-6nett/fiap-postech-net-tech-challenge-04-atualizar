@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contato-atualizar-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: contato-atualizar-api
+  template:
+    metadata:
+      labels:
+        app: contato-atualizar-api
+    spec:
+      containers:
+        - name: contato-atualizar-api
+          image: rafaelssouza108/contato.atualizar.web:1.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: RabbitMq__Host
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: RABBITMQ_HOST
+            - name: RabbitMq__Username
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: RABBITMQ_USERNAME
+            - name: RabbitMq__Password
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: RABBITMQ_PASSWORD
+            - name: RabbitMq__VirtualHost
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: RABBITMQ_VIRTUALHOST
+            - name: RabbitMq__Queue
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: RABBITMQ_QUEUENAME
