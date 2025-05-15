@@ -1,0 +1,129 @@
+# Mongo Deployment + PVC + Service
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: rafaelssouza108/mongo:7.0
+        ports:
+          - containerPort: 27017
+        volumeMounts:
+          - mountPath: /data/db
+            name: mongo-storage
+      volumes:
+        - name: mongo-storage
+          persistentVolumeClaim:
+            claimName: mongo-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service
+spec:
+  selector:
+    app: mongo
+  ports:
+    - port: 27017
+      targetPort: 27017
+---
+# Web API Deployment + Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contato-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: contato-web
+  template:
+    metadata:
+      labels:
+        app: contato-web
+    spec:
+      containers:
+      - name: contato-web
+        image: rafaelssouza108/contato.atualizar.web:1.0
+        ports:
+          - containerPort: 8080
+        env:
+          - name: MongoDb__ConnectionString
+            value: mongodb://mongo-service:27017
+          - name: MongoDb__Database
+            value: test
+          - name: RabbitMQ__HostName
+            value: toucan-01.lmq.cloudamqp.com
+          - name: RabbitMQ__UserName
+            value: wesrhrfp
+          - name: RabbitMQ__Password
+            value: EgeNXUTA7cp9ownXvg8XOQESox2N9Rbc
+          - name: RabbitMQ__VirtualHost
+            value: wesrhrfp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: contato-web-service
+spec:
+  type: NodePort
+  selector:
+    app: contato-web
+  ports:
+    - port: 80
+      targetPort: 8080
+      nodePort: 30080
+---
+# Worker Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-atualizar
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker-atualizar
+  template:
+    metadata:
+      labels:
+        app: worker-atualizar
+    spec:
+      containers:
+      - name: worker-atualizar
+        image: rafaelssouza108/worker.atualizar:1.0
+        env:
+          - name: MongoDb__ConnectionString
+            value: mongodb://mongo-service:27017
+          - name: MongoDb__Database
+            value: test
+          - name: RabbitMQ__HostName
+            value: toucan-01.lmq.cloudamqp.com
+          - name: RabbitMQ__UserName
+            value: wesrhrfp
+          - name: RabbitMQ__Password
+            value: EgeNXUTA7cp9ownXvg8XOQESox2N9Rbc
+          - name: RabbitMQ__VirtualHost
+            value: wesrhrfp
