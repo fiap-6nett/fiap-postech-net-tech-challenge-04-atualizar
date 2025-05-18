@@ -3,7 +3,7 @@ name: CI/CD - Push na master + deploy Kubernetes
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build-push-deploy:
