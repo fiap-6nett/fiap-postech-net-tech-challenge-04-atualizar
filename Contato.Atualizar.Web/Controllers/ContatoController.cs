@@ -17,7 +17,7 @@ public class ContatoController : ControllerBase
     }
     
     /// <summary>
-    /// Enviar um contato para a fila de atualização.
+    /// Enviar um contato para a fila de atualização .
     /// </summary>
     /// <param name="dto">Dados do contato a serem atualizados.</param>
     /// <returns>Retorna o ID e a data da requisição.</returns>
