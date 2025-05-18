@@ -44,6 +44,7 @@ jobs:
 
       - name: ⚙️ Configurar kubectl
         run: |
+          mkdir -p $HOME/.kube
           echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > $HOME/.kube/config
           kubectl version --client
 
