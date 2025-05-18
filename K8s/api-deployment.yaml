@@ -44,4 +44,4 @@ spec:
                   name: rabbitmq-secret
                   key: RABBITMQ_PASSWORD
             - name: MONGO_CONNECTION
-              value: mongodb://mongo:27017/seubanco
+              value: mongodb://mongo:27017/test
