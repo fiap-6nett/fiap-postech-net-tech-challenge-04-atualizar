@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atualizar-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: atualizar-api
+  template:
+    metadata:
+      labels:
+        app: atualizar-api
+    spec:
+      containers:
+        - name: atualizar-api
+          image: rafaelssouza108/contato.atualizar.web:1.1
+          ports:
+            - containerPort: 80
+          env:
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: RABBITMQ_HOST
+            - name: RABBITMQ_VHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: RABBITMQ_VHOST
+            - name: RABBITMQ_QUEUE
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: RABBITMQ_QUEUE
+            - name: RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: RABBITMQ_USERNAME
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: RABBITMQ_PASSWORD
+            - name: MONGO_CONNECTION
+              value: mongodb://mongo:27017/seubanco

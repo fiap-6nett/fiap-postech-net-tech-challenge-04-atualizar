@@ -17,6 +17,7 @@ services:
     ports:
       - "5000:8080"
     environment:
+      - ASPNETCORE_ENVIRONMENT=Development
       - MongoDb__ConnectionString=mongodb://mongo:27017
       - MongoDb__Database=test
       - RabbitMQ__HostName=toucan-01.lmq.cloudamqp.com

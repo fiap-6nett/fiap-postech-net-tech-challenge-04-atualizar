@@ -1,0 +1,39 @@
+name: CI/CD - Docker + Minikube
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/seuprojeto
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Login no Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build da imagem
+        run: docker build -t $IMAGE_NAME:latest .
+
+      - name: Push para Docker Hub
+        run: docker push $IMAGE_NAME:latest
+
+      - name: Setup chave SSH para deploy
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Fazer deploy no Minikube via SSH
+        run: |
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
+            kubectl set image deployment/seu-deployment seu-container=$IMAGE_NAME:latest -n seu-namespace
+          EOF
