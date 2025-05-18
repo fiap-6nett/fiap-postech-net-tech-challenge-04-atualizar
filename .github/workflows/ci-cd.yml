@@ -1,39 +1,41 @@
-name: CI/CD - Docker + Minikube
+name: CI/CD - Docker Publish by Git Tag
 
 on:
   push:
-    branches:
-      - main
-
-env:
-  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/seuprojeto
+    tags:
+      - 'v*'  # Qualquer tag que comece com "v"
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do código
-        uses: actions/checkout@v4
+      - name: 🔄 Checkout do código
+        uses: actions/checkout@v3
 
-      - name: Login no Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: ⚙️ Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
 
-      - name: Build da imagem
-        run: docker build -t $IMAGE_NAME:latest .
+      - name: 🔁 Restore dependências
+        run: dotnet restore Contato.Atualizar.sln
 
-      - name: Push para Docker Hub
-        run: docker push $IMAGE_NAME:latest
+      - name: 🛠️ Build da aplicação
+        run: dotnet build Contato.Atualizar.sln --configuration Release --no-restore
 
-      - name: Setup chave SSH para deploy
+      - name: 🐳 Login no Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🏗️ Build da imagem Docker com tag do Git
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+          TAG=${GITHUB_REF#refs/tags/}
+          docker build -t rafaelssouza108/contato.atualizar.web:$TAG .
 
-      - name: Fazer deploy no Minikube via SSH
+      - name: 🚀 Push da imagem para o Docker Hub
         run: |
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
-            kubectl set image deployment/seu-deployment seu-container=$IMAGE_NAME:latest -n seu-namespace
-          EOF
+          TAG=${GITHUB_REF#refs/tags/}
+          docker push rafaelssouza108/contato.atualizar.web:$TAG
