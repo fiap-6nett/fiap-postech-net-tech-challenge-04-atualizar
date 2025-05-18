@@ -1,13 +1,16 @@
-name: CI/CD - Docker Publish by Git Tag
+name: CI/CD - Push na master
 
 on:
   push:
-    tags:
-      - 'v*'  # Qualquer tag que comece com "v"
+    branches:
+      - main
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_IMAGE: rafaelssouza108/contato.atualizar.web
+      DOCKER_TAG: master
 
     steps:
       - name: 🔄 Checkout do código
@@ -30,12 +33,11 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: 🏗️ Build da imagem Docker com tag do Git
+      - name: 🏗️ Build da imagem Docker com tag "master"
         run: |
-          TAG=${GITHUB_REF#refs/tags/}
-          docker build -t rafaelssouza108/contato.atualizar.web:$TAG .
+          echo "Building image: $DOCKER_IMAGE:$DOCKER_TAG"
+          docker build -t $DOCKER_IMAGE:$DOCKER_TAG .
 
       - name: 🚀 Push da imagem para o Docker Hub
         run: |
-          TAG=${GITHUB_REF#refs/tags/}
-          docker push rafaelssouza108/contato.atualizar.web:$TAG
+          docker push $DOCKER_IMAGE:$DOCKER_TAG
