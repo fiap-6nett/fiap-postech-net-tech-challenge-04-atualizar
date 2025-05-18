@@ -1,9 +1,9 @@
-name: CI/CD - Push na master
+name: CI/CD - main
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build-and-push:
