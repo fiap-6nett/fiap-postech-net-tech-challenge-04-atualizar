@@ -1,30 +1,48 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+﻿# Imagem base para runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-EXPOSE 80
-ENV ASPNETCORE_URLS=http://+:80
 
+# Exponha apenas a porta principal usada pela API
+EXPOSE 8080
+
+# Imagem para build do projeto
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-COPY Contato.Atualizar.sln . 
+# Copia a solução
+COPY Contato.Atualizar.Web.sln . 
+
+# Copia os projetos
 COPY Contato.Atualizar.Web/Contato.Atualizar.Web.csproj Contato.Atualizar.Web/
 COPY Contato.Atualizar.Application/Contato.Atualizar.Application.csproj Contato.Atualizar.Application/
 COPY Contato.Atualizar.Domain/Contato.Atualizar.Domain.csproj Contato.Atualizar.Domain/
 COPY Contato.Atualizar.Infra/Contato.Atualizar.Infra.csproj Contato.Atualizar.Infra/
 
-RUN dotnet restore Contato.Atualizar.sln
+# Restaura dependências
+RUN dotnet restore Contato.Atualizar.Web.sln
 
+# Copia o restante do código
 COPY . .
 
+# Build do projeto
 WORKDIR /src/Contato.Atualizar.Web
 RUN dotnet build -c $BUILD_CONFIGURATION -o /app/build
 
+# Publica a aplicação
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
+# Final: imagem de runtime
 FROM base AS final
 WORKDIR /app
+
+# Garante que a aplicação escute na porta correta
+ENV ASPNETCORE_URLS=http://+:8080
+
+# Copia os arquivos publicados
 COPY --from=publish /app/publish .
+
+# Comando para iniciar a aplicação
 ENTRYPOINT ["dotnet", "Contato.Atualizar.Web.dll"]
